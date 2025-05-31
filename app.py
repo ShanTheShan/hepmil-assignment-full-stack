@@ -5,12 +5,29 @@ import pandas as pd
 from time import localtime, strftime
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+import psycopg2
+from dotenv import load_dotenv
+import os
+import json
 
 class Application:
   def __init__(self):
     self.driverPath  = "chromedriver.exe"
+    #initilize connection to postgres
+    load_dotenv()
+    myPW = os.getenv('password')
+    try:
+        self.connection = psycopg2.connect(database="hepmil", user="postgres", password=myPW, host="localhost", port=5432)
+        self.cursor = self.connection.cursor()
+        print("connection to DB successfull")
+
+    except Exception as e:
+        print("connection to DB failed!")
+        print(e)
+
 
   def run(self):
+      #initialize selenium and chrome driver
       URL = f"https://old.reddit.com/r/memes/top/"
       options = ChromeOptions()
       options.add_argument("--window-size=1920,1080")
@@ -27,7 +44,7 @@ class Application:
       #create dict store
       now = strftime("%Y-%m-%d", localtime())
       data = {now:{}}
-      #iterate over the elements and fetch dat
+      #iterate over the elements and fetch data
       counter = 1
       for elem in elements:
           if counter == 21:
@@ -55,7 +72,6 @@ class Application:
 
               data[now][counter] = {"upvotes":str(upvotes_raw),"title":titleText_Cleaned,"link":link,"comments":comments,"author":op}
 
-
           except:
               print("cant find div")
           counter += 1
@@ -69,7 +85,7 @@ class Application:
       df['link'] = df['link'].str.wrap(50)
 
 
-      #plot
+      #plot and save a pdf
       with PdfPages("memes_report.pdf") as pdf:
         plt.figure(figsize=(10, 6))
         plt.bar(df['rank'].astype(str).tolist(), df['upvotes'].astype(int).tolist(), color='skyblue')
@@ -94,4 +110,16 @@ class Application:
         table.auto_set_font_size(False)
         table.set_fontsize(6) 
         pdf.savefig(fig)
-        plt.close(fig)      
+        plt.close(fig)
+
+      #save the data to the postgres db, then close connection, reopen on next telegram call
+      try:
+        toJson = json.dumps(data)
+        query = "INSERT INTO reddit_top_posts (data) VALUES (%s)"
+        self.cursor.execute(query,(toJson,))
+        self.connection.commit()
+        self.cursor.close()
+        self.connection.close()
+      except Exception as e:
+        print(e)
+        pass

@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
-from pypdf import PdfReader
 
 
 class Messenger:
