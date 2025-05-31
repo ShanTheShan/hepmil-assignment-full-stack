@@ -1,0 +1,24 @@
+#virtual envinroment
+.venv/
+venv/
+.venv/
+
+#env
+.env
+env/
+.env/
+
+#pycache
+__pycache__/
+**/__pycache__/
+
+#drivers
+chromedriver-win64
+chromedriver.exe
+
+#builds and dist
+build/
+dist/
+
+main.spec
+a.out
