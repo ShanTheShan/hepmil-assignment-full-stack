@@ -1,10 +1,6 @@
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-import json
-import time
 import pandas as pd
 from time import localtime, strftime
 import matplotlib.pyplot as plt
@@ -96,6 +92,6 @@ class Application:
         )
         table.scale(1.2, 1.5)
         table.auto_set_font_size(False)
-        table.set_fontsize(6)
+        table.set_fontsize(6) 
         pdf.savefig(fig)
-        plt.close(fig)
+        plt.close(fig)      
