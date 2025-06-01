@@ -9,6 +9,7 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 import json
+import textwrap
 
 class Application:
   def __init__(self):
@@ -87,6 +88,25 @@ class Application:
 
       #plot and save a pdf
       with PdfPages("memes_report.pdf") as pdf:
+
+
+        plt.figure(figsize=(12, 5))
+        plt.axis('off')
+
+        paragraph = (
+        "This report summarizes the top 20 posts from r/memes over the past 24 hours.\n\n"
+        "The first page, which contains a bar chart, displays in descending order, the number of upvotes for each of the top 20 posts. The date of the scraping is in the title of the chart. This way, we can compare the top 20 upvote counts across different days, and track if there are any patterns. For example, if posts tend to fetch more upvotes on Friday compared to Monday.\n\n"
+        "The second page shows a table with detailed data including how many comments were made on the post at the time of scraping, the title of the post, as well the link to view the post itself on reddit.\n\n"
+        "Reddit trends shift rapidly, so these insights will change frequently. Furtheremore, the data is stored in a postgres database, awaiting further data insights.\n\n"
+        "Further improvements to the reddit crawler could be made, such as sifting through the top 5 comments of each of the 20 posts, and generating a word cloud from it. This way, we can see what the top comments are about, and identify key words. An analysis could be drawn if we find any commonly occuring words appearing across posts, suggesting that this is what redditors are interested in talking about, or find funny. But this will increase the waiting time of receiving the file on telegram. Food for thought."
+        )
+        #ensure linebreaks persists
+        wrapped_text = textwrap.fill(paragraph, width=100,replace_whitespace=False)
+        plt.text(0.05, 0.95, wrapped_text, va='top', ha='left', wrap=True, fontsize=10, transform=plt.gca().transAxes)
+        pdf.savefig()
+        plt.close()
+
+        #bar chart
         plt.figure(figsize=(10, 6))
         plt.bar(df['rank'].astype(str).tolist(), df['upvotes'].astype(int).tolist(), color='skyblue')
         plt.title(f"Top 20 r/memes upvote count in the past 24 hours - {now}")
@@ -98,6 +118,7 @@ class Application:
 
         df = df.drop(columns=['rank'],axis=1)
 
+        #table
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.axis('off')
         table = ax.table(
