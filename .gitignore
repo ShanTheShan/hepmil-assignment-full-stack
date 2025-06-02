@@ -17,6 +17,7 @@ chromedriver-win64
 chromedriver.exe
 chromedriver/
 chromedriver.exe/
+chromedriver
 
 #builds and dist
 build/
