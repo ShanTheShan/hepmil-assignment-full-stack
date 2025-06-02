@@ -10,9 +10,15 @@ from dotenv import load_dotenv
 import os
 import json
 import textwrap
+import string
+# import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from wordcloud import WordCloud
 
 class Application:
   def __init__(self):
+    # nltk.download('stopwords')
     self.driverPath  = "chromedriver.exe"
     #initilize connection to postgres
     load_dotenv()
@@ -45,6 +51,9 @@ class Application:
       #create dict store
       now = strftime("%Y-%m-%d", localtime())
       data = {now:{}}
+      
+      #list of titles for wordcloud, raw
+      titles_list = []
       #iterate over the elements and fetch data
       counter = 1
       for elem in elements:
@@ -60,7 +69,11 @@ class Application:
 
               title = elem.find_element(By.CLASS_NAME, "title")
               titleText = title.text
-              titleText_Cleaned = str(titleText).replace('(i.redd.it)','')
+              titleText_Cleaned = str(titleText).replace(' (i.redd.it)','')
+              titleText_Cleaned = titleText_Cleaned.replace(' (v.redd.it)','')
+              
+              #clean and append for wordcloud tokenizing
+              titles_list.append(titleText_Cleaned)
 
               link = elem.find_element(By.CSS_SELECTOR, ".bylink.comments")
               link = link.get_attribute("href")
@@ -90,7 +103,7 @@ class Application:
       with PdfPages("memes_report.pdf") as pdf:
 
 
-        plt.figure(figsize=(12, 5))
+        plt.figure(figsize=(10, 5))
         plt.axis('off')
 
         paragraph = (
@@ -116,9 +129,32 @@ class Application:
         pdf.savefig()
         plt.close()
 
-        df = df.drop(columns=['rank'],axis=1)
+        #word cloud (titles)
+        tokens = []
+        #unique set of english stopwords
+        stop_words = set(stopwords.words('english'))
+        unique_words= ["'","'",'',"",'’',]
+        
+        for sentence in titles_list:
+            tokens.extend(word_tokenize(sentence.lower()))
+        tokens_filtered = [x for x in tokens if x.lower() not in stop_words 
+                           and x.lower() not in string.punctuation
+                           and x.lower() not in unique_words]
+        
+        cloud_text = ' '.join(word for word in tokens_filtered)
+        wordcloud = WordCloud(width=800, height=400,background_color='white',
+                              collocations=False).generate(cloud_text)
+        
+        plt.figure(figsize=(10,6), dpi=900)
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis('off')  
+        plt.tight_layout()
+        pdf.savefig()
+        plt.close()
 
         #table
+        df = df.drop(columns=['rank'],axis=1)
+
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.axis('off')
         table = ax.table(
