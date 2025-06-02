@@ -11,14 +11,15 @@ import os
 import json
 import textwrap
 import string
-# import nltk
+#import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from wordcloud import WordCloud
 
 class Application:
   def __init__(self):
-    # nltk.download('stopwords')
+    #nltk.download('stopwords')
+    #nltk.download('punkt_tab')
     self.driverPath  = "chromedriver.exe"
     #initilize connection to postgres
     load_dotenv()

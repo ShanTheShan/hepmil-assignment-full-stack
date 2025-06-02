@@ -8,6 +8,10 @@ venv/
 env/
 .env/
 
+#report pdf
+memes_report.pdf
+memes_report.pdf/
+
 #pycache
 __pycache__/
 **/__pycache__/
