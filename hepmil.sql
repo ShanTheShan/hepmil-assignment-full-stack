@@ -1,0 +1,11 @@
+--CREATE TABLE reddit_top_posts (
+--    id SERIAL PRIMARY KEY,
+--    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--    data JSONB
+--);
+
+--select * from reddit_top_posts;
+--
+--SELECT created_at,data FROM reddit_top_posts WHERE created_at >= '2025-06-04' AND created_at < '2025-06-05';
+--
+--SELECT created_at, data->'2025-06-04' as posts FROM reddit_top_posts WHERE created_at >= '2025-06-04' AND created_at < '2025-06-05';

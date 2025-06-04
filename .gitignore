@@ -9,19 +9,12 @@ env/
 .env/
 
 #report pdf
-memes_report.pdf
-memes_report.pdf/
 
 #pycache
 __pycache__/
 **/__pycache__/
 
 #drivers
-chromedriver-win64
-chromedriver.exe
-chromedriver/
-chromedriver.exe/
-chromedriver
 
 #builds and dist
 build/
