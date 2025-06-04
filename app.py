@@ -5,10 +5,9 @@ import pandas as pd
 from time import localtime, strftime
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-import psycopg2
+from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
-import json
 import textwrap
 import string
 #import nltk
@@ -21,12 +20,13 @@ class Application:
     #nltk.download('stopwords')
     #nltk.download('punkt_tab')
     self.driverPath  = "chromedriver.exe"
-    #initilize connection to postgres
+    #initilize connection to supabase
     load_dotenv()
-    myPW = os.getenv('password')
+    supabase_url = "https://vouudkpnerfgxkjbbpji.supabase.co"
+    supabase_public_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvdXVka3BuZXJmZ3hramJicGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwMjI2NDUsImV4cCI6MjA2NDU5ODY0NX0.6Nrcm52DkUI0MQQChCUaFe_1qxtKI7XRi9_ArsSxE0Q"
+
     try:
-        self.connection = psycopg2.connect(database="hepmil", user="postgres", password=myPW, host="localhost", port=5432)
-        self.cursor = self.connection.cursor()
+        self.supabase: Client = create_client(supabase_url, supabase_public_key)
         print("connection to DB successfull")
 
     except Exception as e:
@@ -170,14 +170,9 @@ class Application:
         pdf.savefig(fig)
         plt.close(fig)
 
-      #save the data to the postgres db, then close connection, reopen on next telegram call
+      #save the data to the supabase postgres db
       try:
-        toJson = json.dumps(data)
-        query = "INSERT INTO reddit_top_posts (data) VALUES (%s)"
-        self.cursor.execute(query,(toJson,))
-        self.connection.commit()
-        self.cursor.close()
-        self.connection.close()
+        self.supabase.table("reddit_top_posts").insert({"data":data}).execute()
       except Exception as e:
         print(e)
         pass
